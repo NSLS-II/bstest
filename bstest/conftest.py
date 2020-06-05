@@ -9,6 +9,8 @@ import time
 import uuid
 import signal
 
+import epics
+
 # make the logs noisy
 logger = logging.getLogger('bstest')
 logger.setLevel('DEBUG')
@@ -32,10 +34,10 @@ def prefix():
     """
 
     # TODO: Remove this hardcoded prefix
-    return 'DEV1:{SimDetector-Cam:0}'
+    return "XF17BM-BI{Sim-Cam:1}"
 
 
-def spawn_example_ioc(request, stdin=None, stdout=None, stderr=None):
+def spawn_example_ioc(pre, request, stdin=None, stdout=None, stderr=None):
     """Spawns a default an example SimDetector IOC as a subprocess
     """
 
@@ -51,7 +53,13 @@ def spawn_example_ioc(request, stdin=None, stdout=None, stderr=None):
     if request is not None:
         request.addfinalizer(stop_ioc)
 
-    time.sleep(10)
+#    time.sleep(10)
+    ioc_active = False
+    loop_counter = 0
+    while not ioc_active and loop_counter <= 6:
+        if epics.caget(f'{pre}cam1:ADCoreVersion_RBV', timeout=1) is not None:
+            ioc_active=True
+        loop_counter += 1
 
     return p
 
@@ -75,8 +83,8 @@ class SimKlass(SingleTriggerV33, DetectorBase):
 
 
 @pytest.fixture(scope='function')
-def AD(request):
+def AD(request, prefix):
     fp = open('test.txt', 'w')
-    _           = spawn_example_ioc(request, stdout=fp, stderr=fp)
-    ad_obj      = SimKlass("XF17BM-BI{Sim-Cam:1}", name='det')
+    _           = spawn_example_ioc(prefix, request, stdout=fp, stderr=fp)
+    ad_obj      = SimKlass(prefix, name='det')
     return ad_obj
