@@ -4,14 +4,19 @@ from ophyd import Device as OphydDevice
 from ophyd import Component as Cpt
 
 import bluesky.plans as bp
+import epics
+
 
 def test_simple_scan(RE, AD):
-    assert isinstance(AD, OphydDevice)
-    assert hasattr(AD, 'cam')
-    assert hasattr(AD, 'ac_period')
-    assert isinstance(type(AD).ac_period, Cpt)
+    ad_obj, _ = AD
+    assert isinstance(ad_obj, OphydDevice)
+    assert hasattr(ad_obj, 'cam')
+    assert hasattr(ad_obj, 'ac_period')
+    assert isinstance(type(ad_obj).ac_period, Cpt)
     try:
-        RE(bp.count([AD], num=5))
+        RE(bp.count([ad_obj], num=5))
         assert True
     except:
         assert False
+
+

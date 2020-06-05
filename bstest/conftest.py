@@ -87,4 +87,4 @@ def AD(request, prefix):
     fp = open('test.txt', 'w')
     _           = spawn_example_ioc(prefix, request, stdout=fp, stderr=fp)
     ad_obj      = SimKlass(prefix, name='det')
-    return ad_obj
+    return ad_obj, prefix
