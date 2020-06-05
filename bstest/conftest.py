@@ -69,6 +69,7 @@ from nslsii.ad33 import SingleTriggerV33
 from ophyd.areadetector.cam import AreaDetectorCam
 from ophyd.areadetector.detectors import DetectorBase
 from ophyd import Component as Cpt,  EpicsSignal
+from bluesky.tests.conftest import RE
 
 import pytest
 

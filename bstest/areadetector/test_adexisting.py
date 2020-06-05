@@ -1,8 +1,20 @@
+
+import pytest
 from ophyd import Device as OphydDevice
 from ophyd import Component as Cpt
 
+from bstest.conftest import SimKlass
+
 import bluesky.plans as bp
 import epics
+
+"""
+@pytest.fixture(scope='function')
+def AD(request):
+    pre = 'XF17BM-BI{Sim-Cam:1}'
+    ad_obj = SimKlass(pre, name='det')
+    return ad_obj, pre
+
 
 
 def test_simple_scan(RE, AD):
@@ -17,4 +29,4 @@ def test_simple_scan(RE, AD):
     except:
         assert False
 
-
+"""
