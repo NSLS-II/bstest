@@ -15,32 +15,20 @@ from caproto.tests import conftest as caproto_utils
 # make the logs noisy
 logger = logging.getLogger('bstest')
 logger.setLevel('DEBUG')
-
-
-def assert_array_equal(arr1, arr2):
-    assert len(arr1) == len(arr2)
-    for i, j in zip(arr1, arr2):
-        assert i == j
-
-
-def assert_array_almost_equal(arr1, arr2):
-    assert len(arr1) == len(arr2)
-    for i, j in zip(arr1, arr2):
-        assert abs(i - j) < 1e-6
-
+"""
 
 @pytest.fixture(scope='function')
 def prefix():
-    """Generate a random prefix for example IOCs
-    """
+    Generate a random prefix for example IOCs
+    
 
     # TODO: Remove this hardcoded prefix
     return 'DEVSIM1:'
 
 
 def spawn_example_ioc(pre, ioc_config_path, request, stdin=None, stdout=None, stderr=None):
-    """Spawns a default an example SimDetector IOC as a subprocess
-    """
+    Spawns a default an example SimDetector IOC as a subprocess
+    
 
     os.environ['P'] = pre
     current_dir = os.getcwd()
@@ -76,7 +64,7 @@ def spawn_example_ioc(pre, ioc_config_path, request, stdin=None, stdout=None, st
     time.sleep(15)
 
     return p
-
+"""
 
 from nslsii.ad33 import SingleTriggerV33
 #from ophyd import SingleTrigger
@@ -97,9 +85,11 @@ class SimKlass(SingleTriggerV33, DetectorBase):
     ac_period = Cpt(EpicsSignal, "cam1:AcquirePeriod")
 
 
+"""
 @pytest.fixture(scope='function')
 def pv_to_check(prefix):
     return f'{prefix}cam1:AcquireTime_RBV'
+
 
 
 @contextmanager
@@ -172,12 +162,12 @@ def softioc(prefix, ioc_path, additional_args=None,
         proc.kill()
         proc.wait()
 
-
+"""
 
 @pytest.fixture(scope='function')
 def AD(request, prefix):
-    fp = open('test.txt', 'w')
-    _           = spawn_example_ioc(prefix, '/home/jwlodek/Workspace/iocs/cam-sim1', request, stdout=fp, stderr=fp)
-    print(epics.caget(f'{prefix}AcquirePeriod_RBV'))
-    ad_obj      = SimKlass(prefix, name='det')
+    #fp = open('test.txt', 'w')
+    #_           = spawn_example_ioc(prefix, '/home/jwlodek/Workspace/iocs/cam-sim1', request, stdout=fp, stderr=fp)
+    #print(epics.caget(f'{prefix}AcquirePeriod_RBV'))
+    ad_obj      = SimKlass("XF17BM-BI{Sim-Cam:1}", name='det')
     return ad_obj
