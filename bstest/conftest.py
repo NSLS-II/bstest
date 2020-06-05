@@ -35,36 +35,19 @@ def prefix():
     return 'DEV1:{SimDetector-Cam:0}'
 
 
-def spawn_example_ioc(ioc_config_path, request, stdin=None, stdout=None, stderr=None):
+def spawn_example_ioc(request, stdin=None, stdout=None, stderr=None):
     """Spawns a default an example SimDetector IOC as a subprocess
     """
 
-#    os.environ['P'] = pre
-    current_dir = os.getcwd()
-    os.chdir(ioc_config_path)
-    p = subprocess.Popen(['./st.cmd'],
+    p = subprocess.Popen(['docker', 'run', '-w', '/epics/iocs/cam-sim1', 
+                            '-itd', '--name', 'fixture_test', '--rm', 'ioc/simdetector'],
                          stdout=stdout, stderr=stderr, stdin=stdin)
                          #env=os.environ)
-    os.chdir(current_dir)
 
     def stop_ioc():
-        if p.poll() is None:
-            if sys.platform != 'win32':
-                logger.debug('Sending Ctrl-C to the example IOC')
-                p.send_signal(signal.SIGINT)
-                logger.debug('Waiting on process...')
-
-            try:
-                p.wait(timeout=1)
-            except subprocess.TimeoutExpired:
-                logger.debug('IOC did not exit in a timely fashion')
-                p.terminate()
-                logger.debug('IOC terminated')
-            else:
-                logger.debug('IOC has exited')
-        else:
-            logger.debug('Example IOC has already exited')
-
+        _ = subprocess.call(['docker', 'kill', 'fixture_test'])
+    
+    
     if request is not None:
         request.addfinalizer(stop_ioc)
 
@@ -94,6 +77,6 @@ class SimKlass(SingleTriggerV33, DetectorBase):
 @pytest.fixture(scope='function')
 def AD(request):
     fp = open('test.txt', 'w')
-    _           = spawn_example_ioc('/home/jwlodek/Workspace/utils/Dockerized-IOC', request, stdout=fp, stderr=fp)
+    _           = spawn_example_ioc(request, stdout=fp, stderr=fp)
     ad_obj      = SimKlass("XF17BM-BI{Sim-Cam:1}", name='det')
     return ad_obj
