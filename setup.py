@@ -47,7 +47,7 @@ setup(
     entry_points={
         'console_scripts': [
             # 'command = some.module:some_function',
-            'bstest = bstest:main',
+            'bstest = bstest.__main__:main',
         ],
     },
     include_package_data=True,
