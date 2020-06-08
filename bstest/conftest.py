@@ -8,24 +8,23 @@ import threading
 import time
 import uuid
 import signal
+import random
 
 import epics
+
+from nslsii.ad33 import SingleTriggerV33
+from ophyd.areadetector.cam import AreaDetectorCam
+from ophyd.areadetector.detectors import DetectorBase
+from ophyd import Component as Cpt,  EpicsSignal
+from bluesky.tests.conftest import RE
+
+import pytest
+
+import bstest._utils as UTILS
 
 # make the logs noisy
 logger = logging.getLogger('bstest')
 logger.setLevel('DEBUG')
-
-
-def assert_array_equal(arr1, arr2):
-    assert len(arr1) == len(arr2)
-    for i, j in zip(arr1, arr2):
-        assert i == j
-
-
-def assert_array_almost_equal(arr1, arr2):
-    assert len(arr1) == len(arr2)
-    for i, j in zip(arr1, arr2):
-        assert abs(i - j) < 1e-6
 
 
 @pytest.fixture(scope='function')
@@ -33,45 +32,42 @@ def prefix():
     """Generate a random prefix for example IOCs
     """
 
-    # TODO: Remove this hardcoded prefix
-    return "XF17BM-BI{Sim-Cam:1}"
+    return f"BSTEST-DEMOIOC[{random.randint(100, 999)}]"
 
 
-def spawn_example_ioc(pre, request, stdin=None, stdout=None, stderr=None):
-    """Spawns a default an example SimDetector IOC as a subprocess
+@pytest.fixture(scope='function')
+def container_name():
+
+    return f'container_{random.randint(100000, 999999)}'
+
+
+def spawn_example_ioc(pre, request, container_type, container_name, 
+                        container_wd, env_vars = {}, stdin=None, stdout=None, stderr=None):
+
+    """Spawns a default an example Dockerized-IOC as a subprocess
     """
-
-    p = subprocess.Popen(['docker', 'run', '-w', '/epics/iocs/cam-sim1', 
-                            '-itd', '--name', 'fixture_test', '--rm', 'ioc/simdetector'],
-                         stdout=stdout, stderr=stderr, stdin=stdin)
-                         #env=os.environ)
+    
+    full_container_name = f'{container_type}_{container_name}'
+    p = subprocess.Popen(['docker', 'run', '-e', f'P="{pre}"', 
+                            '-w', container_wd, 
+                            '-itd', '--name', full_container_name, 
+                            '--rm', f'epics-ioc/{container_type}'],
+                             stdout=stdout, stderr=stderr, stdin=stdin)
 
     def stop_ioc():
-        _ = subprocess.call(['docker', 'kill', 'fixture_test'])
+        _ = subprocess.call(['docker', 'kill', full_container_name])
     
     
     if request is not None:
         request.addfinalizer(stop_ioc)
 
-#    time.sleep(10)
-    ioc_active = False
-    loop_counter = 0
-    while not ioc_active and loop_counter <= 6:
-        if epics.caget(f'{pre}cam1:ADCoreVersion_RBV', timeout=1) is not None:
-            ioc_active=True
-        loop_counter += 1
+    if UTILS.wait_for_ioc_readiness(pre):
+        logger.debug(f'Spawned {full_container_name} example IOC successfully')
+        return p
+    else:
+        logger.debug('Failed to establish connection to IOC in given timeout')
+        return None 
 
-    return p
-
-
-from nslsii.ad33 import SingleTriggerV33
-#from ophyd import SingleTrigger
-from ophyd.areadetector.cam import AreaDetectorCam
-from ophyd.areadetector.detectors import DetectorBase
-from ophyd import Component as Cpt,  EpicsSignal
-from bluesky.tests.conftest import RE
-
-import pytest
 
 class MyDetector(SingleTriggerV33, AreaDetectorCam):
     pass
@@ -84,8 +80,9 @@ class SimKlass(SingleTriggerV33, DetectorBase):
 
 
 @pytest.fixture(scope='function')
-def AD(request, prefix):
-    fp = open('test.txt', 'w')
-    _           = spawn_example_ioc(prefix, request, stdout=fp, stderr=fp)
-    ad_obj      = SimKlass(prefix, name='det')
+def AD(request, prefix, container_name):
+    _ = spawn_example_ioc(prefix, request, 'simdetector', 
+                            container_name, '/epics/iocs/cam-sim1')
+
+    ad_obj = SimKlass(prefix, name='det')
     return ad_obj, prefix
