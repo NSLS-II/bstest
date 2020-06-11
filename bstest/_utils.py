@@ -1,6 +1,31 @@
 
 import bstest
 import epics
+import sys
+
+
+def get_environment():
+    """Helper function that identifies current environment information
+
+    Returns
+    -------
+    str
+        String representing python environment and os environment
+    """
+    
+    if sys.platform == 'win32':
+        OS_class = 'windows-x64'
+    elif sys.platform == 'darwin':
+        OS_class = 'Mac OS'
+    else:
+        try:
+            import distro
+            v = distro.linux_distribution(full_distribution_name=False)
+            OS_class = f'{v[0]}_{v[1]}'
+        except:
+            OS_class = 'linux'
+
+    return f'Python Version: {sys.version.split()[0]}, OS Class: {OS_class}'
 
 
 def is_ioc_ready(prefix, timeout = 1):

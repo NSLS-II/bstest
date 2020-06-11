@@ -10,6 +10,7 @@ import uuid
 import signal
 import random
 
+import bstest
 import epics
 
 from nslsii.ad33 import SingleTriggerV33
@@ -81,8 +82,13 @@ class SimKlass(SingleTriggerV33, DetectorBase):
 
 @pytest.fixture(scope='function')
 def AD(request, prefix, container_name):
-    _ = spawn_example_ioc(prefix, request, 'simdetector', 
-                            container_name, '/epics/iocs/cam-sim1')
 
-    ad_obj = SimKlass(prefix, name='det')
-    return ad_obj, prefix
+    if bstest.EXTERNAL_PREFIX is None:
+        pre = prefix
+        _ = spawn_example_ioc(pre, request, 'simdetector', 
+                                container_name, '/epics/iocs/cam-sim1')
+    else:
+        pre = bstest.EXTERNAL_PREFIX
+
+    ad_obj = SimKlass(pre, name='det')
+    return ad_obj, pre
