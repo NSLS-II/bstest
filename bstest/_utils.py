@@ -2,6 +2,24 @@
 import bstest
 import epics
 import sys
+import random
+
+
+def gen_n_digit_number(n):
+    """Generates a random n digit number
+
+    Parameters
+    ----------
+    n : int
+        Number of digits output should have
+
+    Returns
+    -------
+    int
+        A pseudo random n-digit number
+    """
+
+    return random.randing(10**(n-1), (10**n) - 1)
 
 
 def get_environment():

@@ -8,7 +8,6 @@ import threading
 import time
 import uuid
 import signal
-import random
 
 import bstest
 import epics
@@ -33,13 +32,13 @@ def prefix():
     """Generate a random prefix for example IOCs
     """
 
-    return f"BSTEST-DEMOIOC[{random.randint(100, 999)}]"
+    return f"BSTEST-DEMOIOC[{UTILS.gen_n_digit_number(3)}]"
 
 
 @pytest.fixture(scope='function')
 def container_name():
 
-    return f'container_{random.randint(100000, 999999)}'
+    return f'container_{UTILS.gen_n_digit_number(6)}'
 
 
 def spawn_example_ioc(pre, request, container_type, container_name, 
