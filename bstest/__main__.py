@@ -117,7 +117,7 @@ def main():
     os.chdir(bstest_install_dir)
 
     # Run pytest main
-    pytest.main()
+    pytest.main([])
     os.chdir(cwd)
 
     bstest.cleanup()

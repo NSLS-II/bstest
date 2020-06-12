@@ -19,7 +19,7 @@ def gen_n_digit_number(n):
         A pseudo random n-digit number
     """
 
-    return random.randing(10**(n-1), (10**n) - 1)
+    return random.randint(10**(n-1), (10**n) - 1)
 
 
 def get_environment():
