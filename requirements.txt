@@ -1,6 +1,8 @@
 # List required packages in this file, one per line.
 pytest
+wheel
 bluesky
 ophyd
 nslsii
 distro
+pyepics

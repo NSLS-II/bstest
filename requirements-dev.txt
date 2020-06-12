@@ -6,6 +6,7 @@ flake8
 pytest
 sphinx
 # These are dependencies of various sphinx extensions for documentation.
+wheel
 ipython
 matplotlib
 numpydoc
@@ -15,3 +16,4 @@ bluesky
 ophyd
 nslsii
 distro
+pyepics
