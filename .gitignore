@@ -1,7 +1,7 @@
 # custom ignores
 
 test.txt
-
+venv/
 
 
 # Byte-compiled / optimized / DLL files

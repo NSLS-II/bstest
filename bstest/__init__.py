@@ -39,6 +39,18 @@ def cleanup(error_code=0):
     exit(error_code)
 
 
+def is_external_ioc():
+    """Checks if running bstest against an external IOC
+
+    Returns
+    -------
+    bool
+        True if running against external IOC, false otherwise
+    """
+
+    return EXTERNAL_PREFIX is not None
+
+
 def validate_docker():
     """Function that checks if docker is installed
 

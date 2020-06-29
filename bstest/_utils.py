@@ -1,8 +1,15 @@
 
 import bstest
+import bstest._data_model
 import epics
 import sys
 import random
+from collections import namedtuple
+
+
+import logging
+
+logger = logging.getLogger('bstest')
 
 
 def gen_n_digit_number(n):
@@ -106,9 +113,12 @@ def get_ioc_type(prefix):
         The type of the IOC
     """
 
+    ioc_info = bstest._data_model.IOCInfo(prefix)
+
     if wait_for_ioc_readiness(prefix):
-        pass   
+        return ioc_info.collect_info()
     else:
+        # IOC was not found/timeout
         return None
 
 
